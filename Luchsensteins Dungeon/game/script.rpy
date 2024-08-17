@@ -1,16 +1,66 @@
 ﻿# Sie können das Skript Ihres Spiels in dieser Datei platzieren.
-# Code markieren, f1 und dann: Create Manual Folding Range from Selection -> richtig swag um code zusammenzufassen
+# Code markieren, f1 und dann: Create Manual Folding Range from Selection 
+# -> richtig swag um code zusammenzufassen
+
+
+# Standardangaben
+define config.developer = True
+default player_name = ""
+default player_class = ""
+default player_hp = 100
+default enemy_hp = 50
+
+#Endings
+default persistent.ending_1 = False
+default persistent.ending_2 = False
+default persistent.ending_3 = False
+default persistent.ending_4 = False
+# Müssen später noch gespeichert werden
+
 
 # Deklarieren der Charaktere
 define l = Character(_("Lux Van Luchsenstein"), color="#cb7315")
 define k = Character(_("Kris Kringle"), color="#1293de")
 define g = Character(_("Guard"), color="#7e7e8b")
 define g2 = Character(_("Other Guard"), color="#7e7e8b")
-define g1 = Character(_("Guard Bulli"), color="#7e7e8b")
+define g1 = Character(_("Guard [player_name]"), color="#7e7e8b")
 define q = Character(_("???"), color="#cb7315")
 
+# Import von Python-Modulen
+init python:
+    import json
+    import random
 
-$ biteCounter = 0
+    # Funktion um den Game State in einer JSON file zu speichern
+    def save_game():
+        game_state = {
+            "player_name": player_name,
+            "player_class": player_class,
+            "player_hp": player_hp
+        }
+        with open("game_state.json", "w") as f:
+            json.dump(game_state, f)
+
+    # Funktion zum Laden vom Game State von der JSON file
+    def load_game():
+        global player_name, player_class, player_hp
+        try:
+            with open("game_state.json", "r") as f:
+                game_state = json.load(f)
+                player_name = game_state["player_name"]
+                player_class = game_state["player_class"]
+                player_hp = game_state["player_hp"]
+        except FileNotFoundError:
+            pass
+
+    # Funktion um den Game State zu reseten (eher zum testen)
+    def reset_game():
+        global player_name, player_class, player_age, player_hp, enemy_hp
+        player_name = ""
+        player_class = ""
+        player_hp = 100
+        enemy_hp = 50
+        save_game()
 
 # Alle Bilder:
 
@@ -188,7 +238,47 @@ default book = False
 
 # Hier beginnt das Spiel.
 label start:
+    menu:
+        "New Game":
+            $ reset_game()
+            jump new_game
+        "Load Game":
+            $ load_game()
+            jump start_gamescene
+
+label new_game:
+    # Charaktererstellung
+    scene black
+    "Create your Character!"
+    $ player_name = renpy.input("What's your name?")
+    $ player_class = renpy.input("Which class are you? (Warrior, Magician, Thief, Fairy)")
+    $ save_game()
+    "Welcome, [player_name], the [player_class]!"
+    "It's time to go on a grand journey!"
+    "Are you ready to dive into your new adventure?"
+    menu:
+
+        "Are you ready to dive into your new adventure?"
+
+        "Yes.":
+            jump main_game
+
+        "Absolutely!":
+            jump main_game
+
+label main_game:
+    "Wonderful! Then let's start!"
+    "..."
+    "...right?"
+    "Haha."
+    "You didn't think you would have a choice, did you?"
+    
+    jump start_gamescene
+
+label start_gamescene:
     $ biteCounter = 0
+    # biteCounter muss hier initialisiert werden, weil es außerhalb von den labeln nicht wahrgenommen wird.
+
     # play music "Dynamite Dash - Donkey Kong Country Tropical Freeze [OST].mp3"
     scene Eiswuste
     with fade
@@ -698,6 +788,7 @@ label breakFree:
 #fertig!
 
 label death:
+    $ persistent.ending_1 = True
 
     show Lux
     l "So this is your choice, yes?"
@@ -751,6 +842,7 @@ label death:
 
     scene black with fade
     show ending death with fade
+    
 
     pause
 
@@ -1054,7 +1146,24 @@ label innoccent:
 
     l "That's what I thought."
 
+    menu:
 
+        "  (Bite him)":
+            jump innocentBite
+
+        "  (Apologize)":
+            jump innocentApologize
+
+    return
+#unvollständig
+
+label innocentBite:
+    return
+#unvollständig
+
+label innocentApologize:
+
+    #ending -> you actually were not harmed! Let's go Bro! 
     return
 #unvollständig
 
@@ -1111,7 +1220,7 @@ label insult:
     menu:
 
         "Whatever kind of look you were aiming for, you missed. But fox would be the closest of them all. (Insult him further)":
-            jump unconcious
+            jump reallyRude
 
         "No. HA! (Let him be.)":
             jump letbe
@@ -1373,7 +1482,7 @@ label letbe:
 
     menu:
         "Your life seems pretty miserable for a peasant. (Start insulting again)":
-            jump unconcious
+            jump reallyRude
 
         "(Grin at him. Seductively?)":
             jump grinSeductively
@@ -1646,7 +1755,7 @@ label begMercy:
     return
 #unvollständig
 
-label unconcious:
+label reallyRude:
 
     k "What's with the rope...?"
 
@@ -1663,6 +1772,62 @@ label unconcious:
     return
 #unvollständig
 
+label unconcious:
+    scene black
+    "Uggh..."
+    "Ouch... W-Where..."
+    "...am I?"
+    scene Cell
+    "Agghh! My head hurts..."
+    "..."
+    "No one is here...?"
+    "This... looks like the cell?!"
+    "How did I end up here?"
+    # Gets up
+    "..."
+    "I'm so hungry..."
+    "It's been so long since I ate something."
+    "Good news is I'm alive."
+    pause 3.0
+    "This sucks."
+    "Am I really a prisoner now?"
+    "..."
+    pause 2.0
+    "Better get comfortable..."
+    pause 2.0
+
+    pause 1.0
+
+    pause 3
+
+    pause 2.0
+
+    "Why does this suddenly get to me?"
+    "All the mocking from Lux never broke me down completely, but this?!"
+    "Just because I left..."
+    "Left my gang..."
+    "Left my grounds..."
+    "Left-...!"
+    "Left... ...Ki..."
+    "Sister... I feel so terrible leaving you with the burden I created..."
+    "...that is why I feel so utterly... atrocious."
+    "I left her with the gang I created all alone."
+    "All these duties..."
+    "What if she just collapses under the pressure?!"
+    "It would all be MY fault."
+    "...my... ...fault..."
+
+    if persistent.ending_1 and persistent.ending_2 and persistent.ending_3 and persistent.ending_4:
+        jump special_ending
+    #special event mit seelenbutler beim playthrough von allen kapiteln
+    
+
+    return
+
+label special_ending:
+    #Seelenbutler kommt rein
+
+    return
 
 label nothing:
 
@@ -1862,6 +2027,7 @@ label nothing7_1:
     g "I can do AT LEAST 3! 3 Backflips!"
     show Guard happy
     g "Doesn't that sound cool?! 3 Backflips!!!"
+    g "I always dreamed to be the most backflippy [player_class] there is!"
     g "Just like 'boing! boing! boing!' And 'bim! bam! boom!' Done!"
 
     menu:
@@ -1943,7 +2109,7 @@ label nothing11:
 
     show Guard
 
-    g2 "Bulli... that's not working."
+    g2 "[player_name]... that's not working."
 
     show Kris Kringle thinking
 
@@ -1953,7 +2119,7 @@ label nothing11:
 
     g1 "B-But :( ..."
 
-    g2 "Let's return to the Routine, Bulli. You did your very best. Tomorrow is another day."
+    g2 "Let's return to the Routine, [player_name]. You did your very best. Tomorrow is another day."
 
     g2 "You can try again there."
 

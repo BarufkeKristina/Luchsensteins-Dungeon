@@ -1,52 +1,26 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
-Compiling ATL code at game/script.rpy:785
-  File "game/script.rpy", line 854, in script
-    show Kris Kringle
-  File "game/script.rpy", line 785, in <module>
-    ease timeT xpos 0.09 ypos 0.32
-NameError: name 'timeT' is not defined
+While running game code:
+  File "game/script.rpy", line 320, in script
+    $ biteCounter += 1
+  File "game/script.rpy", line 320, in <module>
+    $ biteCounter += 1
+NameError: name 'biteCounter' is not defined
 
 -- Full Traceback ------------------------------------------------------------
 
 Full traceback:
-  File "game/script.rpy", line 854, in script
-    show Kris Kringle
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\ast.py", line 1113, in execute
-    show_imspec(self.imspec, atl=getattr(self, "atl", None))
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\ast.py", line 1076, in show_imspec
-    renpy.config.show(name,
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\exports.py", line 765, in show
-    sls.add(layer, img, key, zorder, behind, at_list=at_list, name=name, atl=atl, default_transform=default_transform, transient=transient)
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\display\scenelists.py", line 441, in add
-    if not self.hide_or_replace(layer, remove_index, "replaced"):
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\display\scenelists.py", line 505, in hide_or_replace
-    d = oldsle.displayable._in_current_store()._hide(now - st, now - at, prefix)
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\display\transform.py", line 856, in _hide
-    d = self.copy()
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\display\transform.py", line 804, in copy
-    d.take_execution_state(self)
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\atl.py", line 546, in take_execution_state
-    block = self.compile()
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\atl.py", line 671, in compile
-    block = self.atl.compile(self.context)
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\atl.py", line 873, in compile
-    statements = [ i.compile(ctx) for i in self.statements ]
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\atl.py", line 873, in <listcomp>
-    statements = [ i.compile(ctx) for i in self.statements ]
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\atl.py", line 1246, in compile
-    duration = ctx.eval(self.duration)
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\atl.py", line 392, in eval
-    return renpy.python.py_eval(expr, locals=self.context)
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\python.py", line 1209, in py_eval
-    return py_eval_bytecode(code, globals, locals)
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\python.py", line 1202, in py_eval_bytecode
-    return eval(bytecode, globals, locals)
-  File "game/script.rpy", line 785, in <module>
-    ease timeT xpos 0.09 ypos 0.32
-NameError: name 'timeT' is not defined
+  File "game/script.rpy", line 320, in script
+    $ biteCounter += 1
+  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\ast.py", line 823, in execute
+    renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
+  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\python.py", line 1178, in py_exec_bytecode
+    exec(bytecode, globals, locals)
+  File "game/script.rpy", line 320, in <module>
+    $ biteCounter += 1
+NameError: name 'biteCounter' is not defined
 
 Windows-10-10.0.19045 AMD64
 Ren'Py 8.2.3.24061702
 Experiment Test Renpy 1.0
-Tue Jul  2 01:48:51 2024
+Fri Aug 16 18:13:57 2024
