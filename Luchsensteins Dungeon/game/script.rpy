@@ -1,7 +1,15 @@
-﻿# Sie können das Skript Ihres Spiels in dieser Datei platzieren.
-# Code markieren, f1 und dann: Create Manual Folding Range from Selection 
-# -> richtig swag um code zusammenzufassen
+﻿# ---------------------------------
+# Willkommen zum Renpy Projekt "Luchsensteins Dungeon"!
+# ---------------------------------
 
+# Hier gibt es nur Notizen für den Code speziell, 
+# aber in dem beigefügten PDF-Dokument gibt es viele weitere Infos zu dem Projekt allgemein :D
+# Vorweg noch: Die Benutzung von Einrückungen allgemein, doch vor allem bei den Labels 
+# ist sehr wichtig, um die Übersicht beim Skript zu behalten.
+
+# Notizen für mich: 
+# - Code markieren, f1 und dann: Create Manual Folding Range from Selection 
+# -> richtig gut um code zusammenzufassen
 
 # Standardangaben
 define config.developer = True
@@ -9,8 +17,9 @@ default player_name = ""
 default player_class = ""
 default player_hp = 100
 default enemy_hp = 50
+default timeT = 0.7
 
-#Endings
+# Endings
 default persistent.ending_1 = False
 default persistent.ending_2 = False
 default persistent.ending_3 = False
@@ -25,9 +34,11 @@ define g = Character(_("Guard"), color="#7e7e8b")
 define g2 = Character(_("Other Guard"), color="#7e7e8b")
 define g1 = Character(_("Guard [player_name]"), color="#7e7e8b")
 define q = Character(_("???"), color="#cb7315")
+define r = Character(_("RÄT"), color="#cb2115")
 
-# Import von Python-Modulen
+# Ganzes Statement für Python-Code
 init python:
+    # Import von Python-Modulen
     import json
     import random
 
@@ -63,6 +74,8 @@ init python:
         save_game()
 
 # Alle Bilder:
+# Anmerkung: Ich würde das gerne dauerhaft, auch nach Schließen des Skripts) als Einrückung festlegen, 
+# habe aber keine Ahnung wie das funktioniert und das Internet hilft nicht :(
 
 #Backgrounds
 image Eiswuste: 
@@ -72,7 +85,6 @@ image Eiswuste:
 image Eiswuste2: 
     "1 eiswuste2.jpg"
     zoom 4.2
-
 
 image Prison_Outside:
     "1 prison outside.jpg"
@@ -94,6 +106,12 @@ image vor_der_zelle:
 image Cell:
     "1 zelle 1.jpeg"
     zoom 2.0 
+    ypos -0.5
+
+image Ending_Cell:
+    "1 abschlusszelle.jpg"
+    zoom 3.8
+    ypos 1.1
 
 image Krux:
     "Krux.jpg"
@@ -220,6 +238,8 @@ image Baseball:
 
 # </Alle Bilder Ende>
 
+
+# <Tests mit Transform (Ist aber eher unpraktisch, musste ich feststellen)>
 transform move_left_to_right:
     xalign 0.0  # Start on the left side
     linear 0.2 xalign 1.3  # Move to the right side over 3 seconds
@@ -227,22 +247,25 @@ transform move_left_to_right:
 transform move_left_to_right_short:
     xalign 2.1  
     linear 0.2 xalign 2.5  
+# </Tests mit Transform>
 
 
+# ----------------------------------------------------------------------------
 
-
-
-# This is a variable that is True if you've compared a VN to a book, and False
-# otherwise.
+# Das ist eine Variable, welche True ist, wenn die VN zu einem Buch verglichen wird. False, wenn nicht.
 default book = False
 
-# Hier beginnt das Spiel.
+# Hier beginnt das Spiel
 label start:
+    # New Game ist nur hier für Testzwecke und werde ich erst ganz am Ende ausklammern, wenn das 
+    # Projekt veröffentlichweise komplett fertig ist (mit anderen GUI und Hintergründen).
+
+    # Es sollte immer Spiel Laden ausgewählt werden
     menu:
-        "New Game":
+        "Neues Spiel":
             $ reset_game()
             jump new_game
-        "Load Game":
+        "Spiel laden":
             $ load_game()
             jump start_gamescene
 
@@ -251,6 +274,7 @@ label new_game:
     scene black
     "Create your Character!"
     $ player_name = renpy.input("What's your name?")
+    # Keine Beschränkung etwas Falsches einzugeben, da es sowieso nicht wirklich relevant ist
     $ player_class = renpy.input("Which class are you? (Warrior, Magician, Thief, Fairy)")
     $ save_game()
     "Welcome, [player_name], the [player_class]!"
@@ -272,25 +296,40 @@ label main_game:
     "...right?"
     "Haha."
     "You didn't think you would have a choice, did you?"
+    pause 3
+    "This journey isn't about you."
+    "It's your decision however, where it will end."
+    "Not his."
+    "Choose wisely, [player_name]."
     
     jump start_gamescene
 
 label start_gamescene:
     $ biteCounter = 0
     # biteCounter muss hier initialisiert werden, weil es außerhalb von den labeln nicht wahrgenommen wird.
+    # Könnte vielleicht auch mit default funktionieren? -> lasse jetzt diese Möglichkeit stehen
 
+    # Test mit Musik:
     # play music "Dynamite Dash - Donkey Kong Country Tropical Freeze [OST].mp3"
+
+    # Anzeige von dem ersten Hintergrundbild. Scene macht alles andere weg.
     scene Eiswuste
     with fade
     "It's been quite a while since we left the city."
     "Where the hell are we going?" 
     
+    # Erste Anzeige von Charakter Kris Kringle mit Koordinaten und Animationsbewegung
+    # Die meisten Animationen sind sehr konkret und deshalb ist sie meistens gleich dabei
     show Kris Kringle with dissolve:
         xpos -0.5
         ease 3.0 xpos 0.1 ypos 0.0    
 
     "Even with Ki I've never gone close to where I am right now."
 
+    # Die verschiedenen Gesichtsausdrücke kamen zu verschiedenen Zeitpunkten in das Projekt
+    # Deswegen ist die Bennenung auch etwas untaktisch. Eigentlich wird in Renpy der Name des Charakters 
+    # genommen und dann dahinter die Kennzeichnung der Expression. Beide getrennt durch ein Leerzeichen.
+    # Bei Kris Kringle aber nicht der Fall... Später bei Lux und den Guard passt es aber wieder.
     show Kris Kringle closed_mouth
 
     "Luckily the Aliens aren't bothering us."
@@ -457,7 +496,6 @@ label fallground:
 
     jump continuation
 
-
 label continuation:
 
     show Kris Kringle:
@@ -526,8 +564,6 @@ label continuation:
 
         "Try to break free and run for your life.":
             jump breakFree
-#ab hier fertig!
-
 
 label breakFree:
 
@@ -779,13 +815,12 @@ label breakFree:
             jump death
 
         "...J-J-Just l-l-let m-me d-d-die i-in p-p-peace... (Give up)":
-            jump unconcious
+            jump dontFreezeToDeath
 
         "(Say nothing)":
             jump death
 
     return
-#fertig!
 
 label death:
     $ persistent.ending_1 = True
@@ -847,7 +882,31 @@ label death:
     pause
 
     return
-# fertig!
+# ending
+
+label dontFreezeToDeath:
+    show Lux closed_eyes
+    l "Oh~"
+    l "Well…"
+    show Lux normal_grin
+    l "You know…"
+    l "It would be a shame to just let you rot here, if that‘s what you want."
+    show Lux squint_grin
+    l "Suffering in a wonderful enclosure would be of much much greater pleasure."
+    l "For me,"
+    show Lux closed_eyes
+    l "of course~"
+    "Hngh… I can‘t… Keep my eyes open anymore…"
+    "It‘s… all too much…"
+    show Lux normal_grin
+    show Guard happy
+    l "Good night, Kris Kringle~"
+    show Lux squint_grin
+    l "We‘ll meet again soon enough."
+    scene black with fade
+    "U-Ugh… no…!"
+    "…!"
+    jump unconcious
 
 label dontResist:
     show Kris Kringle closed_mouth:
@@ -1002,9 +1061,9 @@ label dontResist:
 
     l "Let's just go in and see, shall we~?"
 
-    scene Cell:
-        ypos -0.5
+    scene Cell at Transform(blur=0, alpha=1.0, zoom=0.98, ypos=-0.5)
     with fade
+
 
     show Kris Kringle closed_mouth with dissolve:
         xpos 0.0 
@@ -1101,71 +1160,210 @@ label dontResist:
 
         "(Say nothing)":
             jump nothing
-#fertig!
+
 
 label innoccent:
 
     show Lux annoyed
+    show Guard serious
     l "You seriosly think I believe you? Hahaha! What fool do you take me for?"
 
+    show Lux angry behind Kris:
+        ease 2 xpos 0.48 ypos 0.0
+    show Kris Kringle tense
     l "You've murdered hundreds of innocent people in that little stunt of yours! You'll not get away with your crimes!"
-
+    show Guard
+    show Lux annoyed
+    show Kris Kringle annoyed
     l "Even worse! You harmed our most beatiful president there is!"
-
-    l "For what you have done to THE Queen, Side Character herself, I will never forgive you!"
-
-    k "You have to listen to me! The real culprit is still out there!"
-
-    l "Then why was YOUR baseball bat found there, hm? I've seen the crimescene with my own eyes."
-
-    l "Was not a magnificent thing to see. I can say that much."
-
-    k "Someone stole it, duh?! I didn't do shit."
-
-    l "Let me tell you something."
-
-    l "Something really... really important."
-
-    l "I don't give a flying fox if you commited that terrorist attack or not."
-
-    l "You may be innocent..."
     
+    show Kris Kringle tense
+    show Lux angry
+    l "For what you have done to THE Queen, Side Character herself, I will never forgive you!"
+    show Lux annoyed
+    show Kris Kringle angry
+    k "You have to listen to me! The real culprit is still out there!"
+    show Lux angry
+    l "Then why was YOUR baseball bat found there, hm? I've seen the crimescene with my own eyes."
+    show Kris Kringle tense
+    show Lux annoyed
+    l "Was not a magnificent thing to see. I can say that much."
+    show Kris Kringle angry
+    k "Someone stole it, duh?! I didn't do shit."
+    show Kris Kringle closed_mouth
+    show Lux closed_eyes
+    l "Let me tell you something."
+    show Lux squint_grin
+    l "Something really... really important."
+    show Lux angry
+    show Kris Kringle annoyed
+    l "I don't give a flying fox if you commited that terrorist attack or not."
+    show Lux normal_grin
+    l "You may be innocent..."
+    show Lux closed_eyes
     l "Yes you might~..."
-
+    show Lux squint
     l "But you're still a criminal aren't you?"
-
+    show Lux squint_grin
+    show Kris Kringle tense
     k "..."
-
+    show Lux closed_eyes
     l "Soooo~ it doesn't matter if you did it~! At the end of the day you still belong here~!"
-
+    show Lux angry
     l "And NOTHING is going to change that."
-
+    show Lux annoyed
     l "Or was sneaking into the government of Terram Solis and flirting with the president to manipulate her something you also want to deny."
-
+    show Kris Kringle angry
     k "...!"
-
+    show Lux squint_grin
     l "That's what I thought."
 
     menu:
 
-        "  (Bite him)":
+        "(Bite him like the menace I am)":
             jump innocentBite
 
-        "  (Apologize)":
+        "(Just Apologize)":
             jump innocentApologize
 
-    return
-#unvollständig
-
 label innocentBite:
+    $ biteCounter += 1
+    
+    hide Kris Kringle
+    with dissolve
+
+    show Kris Kringle angry:
+        xpos  0.32
+        ease 0.2 xpos 0.4 ypos 0.3
+        pause 0.2
+        ease 1 xpos 0.38 ypos 0.25
+
+    show Lux angry
+    l "OUCH!!!"
+
+    l "WHAT IN TARNATION DO YOU THINK YOU'RE DOING??"
+    l "Let go off me this instantly or you WILL regret it."
+
+    menu:
+
+        "(Bite him harder like the absolute menace I am)":
+            jump innocentBiteHarder
+
+        "(Let go)":
+            jump innocentBiteLetGo  
+
+
+label innocentBiteHarder:
+    $ biteCounter += 1
+
+    show Kris Kringle angry:
+        ease 0.2 xpos 0.4 ypos 0.3
+    pause 0.2
+
+    show Kris Kringle angry:
+        ease 0.4 xpos 0.38 ypos 0.25
+    show Lux angry:
+        ease 0.1 xpos 0.47 ypos 0.03
+    pause 0.2
+    show Lux angry:
+        ease 0.2 xpos 0.52 ypos 0.0 
+    l "THIS IS ENOUGH!!!"
+    show Lux angry:
+        ease 0.3 xpos 0.6 ypos 0.0
+    show Kris Kringle grin:
+        ease 0.
+    l "YOU FOOL!!!" 
+    
+    # Höchstanzahl hier kann 3 sein
+    if biteCounter > 2:
+        jump innocentBiteKill
+
+    jump innocentBiteLetGo 
+
+label innocentBiteKill:
+    l "You've reached your limit."
+    show Kris Kringle angry
+    l "That's it for you, Kris Kringle."
+    scene black
+    l "Kill him this instantly."
+
+    pause
     return
-#unvollständig
+#fast fertig ending
+
+label innocentBiteLetGo:
+    show Lux annoyed
+    show Kris Kringle angry
+    l "Guards!!!"
+    l "Pin him down immediately!"
+    l "This one time I'll have mercy with you."
+    show Lux closed_eyes
+    l "But now."
+    show Lux annoyed
+    l "This little show is over."
+    scene black with fade
+    l "For now."
+    "Ughh..."
+    "What are they doing?!"
+    "Everything is turning black..."
+    "I can't keep my eyes open anymore..."
+    jump unconcious
 
 label innocentApologize:
+    show Kris Kringle tense
+    k "I-..."
+    show Lux
+    show Kris Kringle
+    k "I'm sorry. I didn't mean to hurt Side."
+    show Kris Kringle thinking
+    k "Queen Character, I mean."
+
+    if biteCounter > 0:
+        show Lux squint
+        l "..."
+        show Lux angry
+        show Kris Kringle annoyed
+        l "After rudely biting me you expect me to have mercy?"
+        show Lux annoyed
+        l "I don't care."
+        l "Didn't I mention this before?"
+        show Kris Kringle angry
+        show Lux angry
+        l "Go and have fun in your own littered sea of lies."
+        jump innocentBiteLetGo
+
+    show Lux annoyed
+    l "You're serious?"
+    show Kris Kringle
+    k "Yeah."
+    show Kris Kringle angry
+    k "It's the truth. Do with it whatever you want."
+    show Kris Kringle tense
+    show Lux
+    pause 2
+    show Kris Kringle closed_mouth
+    "It looks like he believes me."
+    show Kris Kringle smile
+    "Never thought he would."
+    l "Hm..."
+    show Lux annoyed
+    l "Well."
+    show Lux squint
+    l "If that's it. You can go to your cell now. I do want to award your honestness."
+    show Lux closed_eyes
+    l "I myself am an honest man and I respect that of others."
+    show Kris Kringle closed_mouth
+    show Lux normal_grin
+    l "Guards!"
+    show Lux
+    l "Ensure he makes it to his cell safe and sound."
+
+    scene black with fade
+    pause
 
     #ending -> you actually were not harmed! Let's go Bro! 
     return
-#unvollständig
+#fast fertig ending
 
 label insult: 
 
@@ -1224,7 +1422,6 @@ label insult:
 
         "No. HA! (Let him be.)":
             jump letbe
-#fertig!
 
 #Versuch von Funktion bezüglich Animation von Schlägen:
 """
@@ -1237,6 +1434,57 @@ label KrisKringlebeatUp(timeT=0.7):
         return
 call KrisKringlebeatUp()
 """
+
+label reallyRude:
+
+    k "What the...?"
+
+    show Lux squint_grin
+
+    l "..."
+
+    l "Sometimes... I bring out this baby..."
+
+    l "For the... difficult cases~"
+
+    "That doesn't look too good!"
+
+    k "H-Hey no hard feelings, right!?"
+
+    "I think I might have overdone it!"
+
+    l "You don't know what's good for you, do you?!"
+
+    scene black
+    l "Let me stuff this microwave down your filthy throat."
+    "Oh oh."
+
+    # microwave ending
+    pause
+
+    jump unconcious
+#unvollständig (Dialog fertig) ending microwave
+
+label hittingSequence:
+    show Lux squint_grin behind Kris:
+        ease 0.08 xpos 0.36 ypos 0.0
+
+    show Baseball:
+        ease 0.13 xpos 0.41 ypos 0.25
+
+    pause 0.13
+
+    show Lux closed_eyes behind Kris:
+        ease 0.1 xpos 0.4 ypos 0.0
+
+    show Baseball:
+        ease 0.3 xpos 0.45 ypos 0.25
+
+    show Kris Kringle angry:
+            ease 0.1 xpos 0.03 ypos 0.35
+            pause 0.07
+            ease timeT xpos 0.09 ypos 0.32
+    return
 
 label letbe:
 
@@ -1299,72 +1547,20 @@ label letbe:
 
     "Is he really going to hit me with that?!"
 
-    #<Hitting>:
-    show Lux squint_grin behind Kris:
-        ease 0.08 xpos 0.36 ypos 0.0
-
-    show Baseball:
-        ease 0.13 xpos 0.41 ypos 0.25
-
-    pause 0.13
-
-    show Lux closed_eyes behind Kris:
-        ease 0.1 xpos 0.4 ypos 0.0
-
-    show Baseball:
-        ease 0.3 xpos 0.45 ypos 0.25
-
-    show Kris Kringle angry:
-            ease 0.1 xpos 0.03 ypos 0.35
-            pause 0.07
-            ease 0.7 xpos 0.09 ypos 0.32
-    #</hitting>
+    # Über der hittingSequence, wenn nötig wird timeT ersetzt wegen lustigen nicht-möglichen Zeug von ATL und Renpy
+    # Habs als nicht-globale Variable probiert :,)
+    # Besser auf jeden Fall als das komplette Segment zu copy-pasten im Code
+    $ timeT = 0.7
+    call hittingSequence
 
     k "AAGH!!" with vpunch
 
-    #<Hitting>:
-    show Lux squint_grin behind Kris:
-        ease 0.08 xpos 0.36 ypos 0.0
-
-    show Baseball:
-        ease 0.13 xpos 0.41 ypos 0.25
-
-    pause 0.13
-
-    show Lux closed_eyes behind Kris:
-        ease 0.1 xpos 0.4 ypos 0.0
-
-    show Baseball:
-        ease 0.3 xpos 0.45 ypos 0.25
-
-    show Kris Kringle angry:
-            ease 0.1 xpos 0.03 ypos 0.35
-            pause 0.07
-            ease 1.5 xpos 0.09 ypos 0.32
-    #</hitting>
+    $ timeT = 1.5
+    call hittingSequence
 
     k "GAAH!!!" with vpunch
-
-    #<Hitting>:
-    show Lux squint_grin behind Kris:
-        ease 0.08 xpos 0.36 ypos 0.0
-
-    show Baseball:
-        ease 0.13 xpos 0.41 ypos 0.25
-
-    pause 0.13
-
-    show Lux closed_eyes behind Kris:
-        ease 0.1 xpos 0.4 ypos 0.0
-
-    show Baseball:
-        ease 0.3 xpos 0.45 ypos 0.25
-
-    show Kris Kringle angry:
-            ease 0.1 xpos 0.03 ypos 0.35
-            pause 0.07
-            ease 2.0 xpos 0.09 ypos 0.32
-    #</hitting>
+    $ timeT = 2.0
+    call hittingSequence
 
     k "GRAGH!!! Stop this madness!" with vpunch
 
@@ -1382,26 +1578,8 @@ label letbe:
 
     k "You just beat up the prisoners until they break down?! No wonder you-"
 
-    #<Hitting>:
-    show Lux squint_grin behind Kris:
-        ease 0.08 xpos 0.36 ypos 0.0
-
-    show Baseball:
-        ease 0.13 xpos 0.41 ypos 0.25
-
-    pause 0.13
-
-    show Lux closed_eyes behind Kris:
-        ease 0.1 xpos 0.4 ypos 0.0
-
-    show Baseball:
-        ease 0.3 xpos 0.45 ypos 0.25
-
-    show Kris Kringle angry:
-            ease 0.1 xpos 0.03 ypos 0.35
-            pause 0.07
-            ease 0.7 xpos 0.09 ypos 0.32
-    #</hitting>
+    $ timeT = 0.7
+    call hittingSequence
 
     k "AGGHHH...!! huff huff..." with vpunch
 
@@ -1417,26 +1595,8 @@ label letbe:
 
     l "It's just as you said. Threats don't mean anything to you. But maybe actions do."
 
-    #<Hitting>:
-    show Lux squint_grin behind Kris:
-        ease 0.08 xpos 0.36 ypos 0.0
-
-    show Baseball:
-        ease 0.13 xpos 0.41 ypos 0.25
-
-    pause 0.13
-
-    show Lux closed_eyes behind Kris:
-        ease 0.1 xpos 0.4 ypos 0.0
-
-    show Baseball:
-        ease 0.3 xpos 0.45 ypos 0.25
-
-    show Kris Kringle angry:
-            ease 0.1 xpos 0.03 ypos 0.35
-            pause 0.07
-            ease 1.0 xpos 0.09 ypos 0.32
-    #</hitting>
+    $ timeT = 1.0
+    call hittingSequence
 
     k "UGHH... huff... huff... what do you..." with vpunch
 
@@ -1449,27 +1609,8 @@ label letbe:
 
     k "What do you want out of this?! By constantly hitting me you won't get ANYTH-"
 
-    #<Hitting>:
-    show Lux squint_grin behind Kris:
-        ease 0.08 xpos 0.36 ypos 0.0
-
-    show Baseball:
-        ease 0.13 xpos 0.41 ypos 0.25
-
-    pause 0.13
-
-    show Lux closed_eyes behind Kris:
-        ease 0.1 xpos 0.4 ypos 0.0
-
-    show Baseball:
-        ease 0.3 xpos 0.45 ypos 0.25
-
-    show Kris Kringle angry:
-            ease 0.1 xpos 0.03 ypos 0.35
-            pause 0.07
-            ease 2.0 xpos 0.09 ypos 0.32
-    #</hitting>
-
+    $ timeT = 2.0
+    call hittingSequence
 
     k "AAaaarghh... ugh... huff..." with vpunch
 
@@ -1489,7 +1630,7 @@ label letbe:
 
         "(Give in to the pain. There is nothing you can do anyways)":
             jump giveIn
-#fertig!
+
 label grinSeductively:
 
     scene Krux with fade:
@@ -1529,29 +1670,10 @@ label grinSeductively:
 
     return
 #fertig! Ending
-
 label giveIn:
 
-    #<Hitting>:
-    show Lux squint_grin behind Kris:
-        ease 0.08 xpos 0.36 ypos 0.0
-
-    show Baseball:
-        ease 0.13 xpos 0.41 ypos 0.25
-
-    pause 0.13
-
-    show Lux closed_eyes behind Kris:
-        ease 0.1 xpos 0.4 ypos 0.0
-
-    show Baseball:
-        ease 0.3 xpos 0.45 ypos 0.25
-
-    show Kris Kringle angry:
-            ease 0.1 xpos 0.03 ypos 0.35
-            pause 0.07
-            ease 0.7 xpos 0.09 ypos 0.32
-    #</hitting>
+    $ timeT = 0.7
+    call hittingSequence
     
     "Grr... It hurts so much..." with vpunch
 
@@ -1570,7 +1692,6 @@ label giveIn:
         
         "Plead for mercy in hopes to not get beaten to death by a baseball bat. (Give up)":
             jump pleadMercy
-#fertig
 
 label biteAgain:
     $ biteCounter += 1
@@ -1620,27 +1741,47 @@ label biteAgain:
     l "I have endured enough of you! Now bow before me!"
 
     jump grinSeductively
-#fertig
 
 label pleadMercy:
 
+    show Kris Kringle thinking
+
     k "... ..."
+
+    show Kris Kringle tense
 
     k "...Stop... ..."
 
     l "Giving up already~? Ahaha!"
 
+    show Lux
+
     l "I'm dissapointed I must say... you looked so tough on our way here."
+
+    show Lux normal_grin
 
     l "And all I see now is a miserable piece of shit!"
 
+    show Kris Kringle angry
+
     k "GRRRrrr... you..."
+
+    show Kris Kringle annoyed
+    show Lux squint_grin
 
     l "Oooh and trust me! I didn't even get started..."
 
+    $ timeT = 0.9
+    call hittingSequence
+
+
     k "Uagh!" with vpunch
 
+    show Lux squint
+    show Kris Kringle tense
     l "Aren't you having a fun time? Because I sure do! I'm having a very good time~!"
+
+    show Kris Kringle annoyed
 
     menu: 
         l "If you truly want me to stop and just lock you away... show it!"
@@ -1649,33 +1790,165 @@ label pleadMercy:
 
         "(Say nothing)":
             jump sadEnding
-#unvollständig
+
+label begMercy:
+    show Kris Kringle thinking
+    k "..."
+    show Kris Kringle tense
+    k "...Lux..."
+    show Lux normal_grin
+    show Guard
+    l "Yees?"
+    show Lux 
+    show Kris Kringle
+    k "... ...Please..."
+    show Lux squint
+    l "Go on..."
+    show Lux closed_eyes
+    l "Don't let me wait too long~!"
+    show Lux 
+    show Kris Kringle annoyed
+    k "...huff..."
+    show Lux squint_grin
+    l "Wait! Let me help you~!"
+
+    $ timeT = 1.2
+    call hittingSequence
+
+    k "AAGH...!" with vpunch
+
+    show Lux squint_grin
+
+    l "Could I help that one brain cell of yours~? Or do you need anoth-"
+
+    show Kris Kringle angry:
+        ease 0.1 xpos 0.09 ypos 0.28
+        pause 0.07
+        ease 0.1 xpos 0.09 ypos 0.32
+
+    k "NO-! ..." with vpunch
+
+    show Lux
+
+    l "Oh so eager, hm?"
+
+    show Kris Kringle tense
+
+    k "...Please don't hit me again... hah..."
+
+    show Lux normal_grin
+
+    l "Now look at that! Such a good boy! Didn't think you'd plead me to stop on your first day..."
+
+    show Lux annoyed
+    l "Utterly dissapointing."
+    show Lux normal_grin
+    l "But at the same time... better for my amusement!"
+    show Lux closed_eyes
+    l "Can't wait to hear you doing that tomorrow as well."
+    show Lux normal_grin
+    l "Although you need to be a lot more... hm... what do they say... energetic with your cries."
+    show Lux closed_eyes
+    l "Or else..."
+    show Kris Kringle angry
+    l "I might get too bored and swing this beloved baseball bat again~!"
+
+    # lehnt sich runter
+    show Lux squint:
+        ease 2 xpos 0.3 ypos 0.2
+    show Baseball behind Kris:
+        ease 2 xpos 0.3 ypos 0.4
+
+    l "Maybe in the gut..."
+    l "Or your skull..."
+    show Lux closed_eyes
+    l "Your arms seem very hitable."
+
+    k "...!"
+    show Kris Kringle annoyed
+    show Lux behind Kris:
+        ease 0.3 xpos 0.4 ypos 0.0
+
+    show Baseball behind Kris:
+        ease 0.4 xpos 0.45 ypos 0.25
+
+    l "For now! I've heard enough."
+    l "Bring him to his cell at once! He's done for the day."
+    show Lux normal_grin
+    l "But wait!"
+    show Kris Kringle angry
+    k "W-What else now?!"
+    show Lux closed_eyes
+    l "This last hit will send you straight to your destination."
+    show Guard happy
+    show Kris Kringle shocked
+    show Lux squint:
+        ease 2 xpos 0.3 ypos 0.2
+    show Baseball behind Kris:
+        ease 2 xpos 0.3 ypos 0.4
+    pause 0.2
+    scene black with fade 
+    k "AAGH!!!" with vpunch
+    l "Sleep tight, Kris Kringle."
+    k "Ughhh..."
+
+    jump unconcious
 
 label sadEnding:
-
+    show Kris Kringle thinking
     "I-I... I can't..."
-
+    show Kris Kringle tense
     "I can't keep up..."
 
+    show Kris Kringle sad
     "Everything is falling in front of me."
 
     "My life crumbling before my very eyes."
-
+    show Kris Kringle tense
     "I've been so close to death a couple of times now."
 
     "B-But..."
-
+    show Kris Kringle angry
     "Never like this!"
-
+    show Kris Kringle sad
     "Why do I feel so sad out of the sudden..."
 
+    window hide
     # Kris Kringles Perspektive Nox wird blurry und hintergrund auch
-
+    show Cell:
+        ease 5 blur 15
+    show Kris Kringle sad:
+        ease 5 blur 15
+    show Baseball:
+        ease 5 blur 10
+    show Lux:
+        ease 5 blur 15
+    show Guard happy:
+        ease 5 blur 15
+    pause 2.0
+    #hier blur einfügen
     "Everything starts to get blurry..."
+    
+
+    show Cell:
+        ease 5 blur 55
+    show Kris Kringle tense:
+        ease 5 blur 55
+    show Baseball:
+        ease 5 blur 55
+    show Lux:
+        ease 5 blur 55
+    show Guard happy:
+        ease 5 blur 55
+    pause 2.0
+
+    call hittingSequence
 
     k "UUugh..." with vpunch
 
     "I wonder what MatMat is doing..."
+
+    call hittingSequence
 
     k "...!" with vpunch
 
@@ -1685,6 +1958,23 @@ label sadEnding:
 
     "At least she can be happy with her whore husband. That asshole."
     "He'd be more than happy to see me like this."
+    "I bet he was the one planing that terrorist attack..."
+    "Who in their right mind would do such a thing?!"
+    "Now it's too late anyways..."
+
+    show Cell:
+        ease 5 blur 100
+    show Kris Kringle tense:
+        ease 5 blur 100
+    show Baseball:
+        ease 5 blur 100
+    show Lux:
+        ease 5 blur 100
+    show Guard happy:
+        ease 5 blur 100
+    pause 2.0
+
+    call hittingSequence
 
     k "..." with vpunch
 
@@ -1697,137 +1987,163 @@ label sadEnding:
     "I wish I would've spent more time with Ki."
 
     "But it's too late for that."
-
+    pause 3
+    window show
+    
     "I'm sorry, sister."
 
-    return
-# unvollständig
+    scene black with fade
+    # show ************ with fade
+    # "Kris Kringle was indeed a sad punchbag-END" -> yup he died lmao... what did you expect- like for real bro
 
-label begMercy:
-    k "..."
-    k "...Lux..."
-
-    l "Yees?"
-
-    k "... ...Please..."
-
-    l "Go on..."
-    l "Don't let me wait too long~!"
-
-    k "...huff..."
-
-    l "Wait! Let me help you~!"
-
-    k "AAGH...!" with vpunch
-
-    l "Could I help that one brain cell of yours~? Or do you need anoth-"
-
-    k "NO-! ..." with vpunch
-
-    l "Oh so eager, hm?"
-
-    k "...Please don't hit me again... hah..."
-
-    l "Now look at that! Such a good boy! Didn't think you'd plead me to stop on your first day..."
-
-    l "Utterly dissapointing."
-
-    l "But at the same time... better for my amusement!"
-
-    l "Can't wait to hear you doing that tomorrow as well."
-
-    l "Although you need to be a lot more... hm... what do they say... energetic with your cries."
-
-    l "Or else..."
-
-    l "I might get too bored and swing this beloved baseball bat again~!"
-
-    #goes closer leaning down
-
-    l "Maybe in the gut..."
-    l "Or your skull..."
-    l "Your arms seem very hitable."
-
-    k "...!"
-    l "For now! I've heard enough."
-    l "Bring him to his cell at once! He's done for the day."
-
-    return
-#unvollständig
-
-label reallyRude:
-
-    k "What's with the rope...?"
-
-    show Lux squint_grin
-
-    l "..."
-
-    "That doesn't look too good!"
-
-    k "H-Hey no hard feelings, right!?"
-
+    pause
     
-
     return
-#unvollständig
+# fast fertig ending
+#ending screen fehlt
 
 label unconcious:
-    scene black
+    pause 4
+    scene black with fade
     "Uggh..."
     "Ouch... W-Where..."
     "...am I?"
-    scene Cell
+    scene Ending_Cell
+    show black behind Ending_Cell
+    show Ending_Cell:
+        # Initially, the image is completely transparent and blurred
+        alpha 0.0
+        blur 100
+        # Pause to keep the image blurred and transparent
+        pause 0.5
+        # Gradually bring the opacity to 1 (fully visible) and reduce blur to 0
+        linear 1.0 alpha 1.0
+        pause 0.9
+        linear 5.0 blur 0  # Remove blur over 1 second
+
+    
+    pause 2
     "Agghh! My head hurts..."
     "..."
+    window hide  # Verbirgt den Textbalken
+    pause 3
+    window show  # Zeigt den Textbalken
     "No one is here...?"
+    window hide  
+    pause 1
+    window show
     "This... looks like the cell?!"
     "How did I end up here?"
-    # Gets up
+    window hide  
+    show Kris Kringle angry with dissolve:
+        xpos 0.2 ypos 0.9
+        ease 4.0 xpos 0.2 ypos 0.0
+        pause 5.0
+    window show
+    
     "..."
+    show Kris Kringle tense
     "I'm so hungry..."
+    show Kris Kringle closed_mouth
     "It's been so long since I ate something."
+    show Kris Kringle thinking
     "Good news is I'm alive."
+    window hide
     pause 3.0
+    window show
+    show Kris Kringle annoyed
     "This sucks."
+    show Kris Kringle tense
     "Am I really a prisoner now?"
+    show Kris Kringle
     "..."
     pause 2.0
+    show Kris Kringle tense
     "Better get comfortable..."
+    window hide
     pause 2.0
-
+    show Kris Kringle thinking
     pause 1.0
-
+    show Kris Kringle annoyed
     pause 3
-
+    show Kris Kringle sad
     pause 2.0
-
+    show Kris Kringle angry
+    pause 1.5
+    show Kris Kringle tense
+    pause 2.0
+    show Kris Kringle sad
+    pause 1.5 
+    show Kris Kringle very sad
+    pause 1.0
+    show Kris Kringle sad
+    window show
     "Why does this suddenly get to me?"
     "All the mocking from Lux never broke me down completely, but this?!"
     "Just because I left..."
     "Left my gang..."
     "Left my grounds..."
     "Left-...!"
+    show Kris Kringle very sad
     "Left... ...Ki..."
     "Sister... I feel so terrible leaving you with the burden I created..."
+    show Kris Kringle angry
     "...that is why I feel so utterly... atrocious."
+    show Kris Kringle sad
     "I left her with the gang I created all alone."
     "All these duties..."
     "What if she just collapses under the pressure?!"
+    show Kris Kringle very sad
     "It would all be MY fault."
     "...my... ...fault..."
 
+    "..."
+    show Kris Kringle shocked
+    "What's that?"
+    show Kris Kringle
+    "Is that-?"
+    r "*RAT NOISES*"
+    show Kris Kringle shocked:
+        ease 2.0 xpos 0.0 ypos 0.0
+    #show Rat:
+
+    "What is this RÄT doing here?!"
+    show Kris Kringle thinking
+    "Natural Habitat, I guess."
+
+    menu:
+
+        "As soon as he comes closer, I'll..."
+
+        "bite him in his ankle.":
+            jump biteankle
+
+        "fall to the ground and pretend like I'm dying (Big Brain Move!).":
+            jump fallground    
+    #Kampf mit der Ratte
+
+    
+    return
+#unvollständig 
+
+label unconciousEnd:
     if persistent.ending_1 and persistent.ending_2 and persistent.ending_3 and persistent.ending_4:
         jump special_ending
     #special event mit seelenbutler beim playthrough von allen kapiteln
-    
 
-    return
+    # :D ending
+    pause
+#unvollständig ending "Congrats you ended up in the cell! Alive!" , "Top 10 Tipps to not die in prison by Kris Kringle"
 
 label special_ending:
     #Seelenbutler kommt rein
 
     return
+#unvollständig ending ":D"
+
+
+
+# --------------------------------------------------------------
 
 label nothing:
 
