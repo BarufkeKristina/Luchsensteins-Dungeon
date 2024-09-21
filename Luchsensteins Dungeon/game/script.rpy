@@ -11,15 +11,19 @@
 # - Code markieren, f1 und dann: Create Manual Folding Range from Selection 
 # -> richtig gut um code zusammenzufassen
 
-# Standardangaben
+
 define config.developer = True
-default player_name = ""
-default player_class = ""
+
+# Standardangaben (Muss nicht gespeichert werden)
 default player_hp = 100
 default enemy_hp = 50
 default timeT = 0.7
 
-# Endings
+# Standardangaben (Müssen gespeichert werden)
+default player_name = ""
+default player_class = ""
+
+# Endings (Müssen gespeichert werden)
 default persistent.ending_1 = False
 default persistent.ending_2 = False
 default persistent.ending_3 = False
@@ -35,6 +39,9 @@ define g2 = Character(_("Other Guard"), color="#7e7e8b")
 define g1 = Character(_("Guard [player_name]"), color="#7e7e8b")
 define q = Character(_("???"), color="#cb7315")
 define r = Character(_("RÄT"), color="#cb2115")
+define s2 = Character(_("???"), color="#9c0a00")
+define s = Character(_("Serverus"), color="#9c0a00")
+
 
 # Ganzes Statement für Python-Code
 init python:
@@ -46,21 +53,19 @@ init python:
     def save_game():
         game_state = {
             "player_name": player_name,
-            "player_class": player_class,
-            "player_hp": player_hp
+            "player_class": player_class
         }
         with open("game_state.json", "w") as f:
             json.dump(game_state, f)
 
     # Funktion zum Laden vom Game State von der JSON file
     def load_game():
-        global player_name, player_class, player_hp
+        global player_name, player_class
         try:
             with open("game_state.json", "r") as f:
                 game_state = json.load(f)
                 player_name = game_state["player_name"]
                 player_class = game_state["player_class"]
-                player_hp = game_state["player_hp"]
         except FileNotFoundError:
             pass
 
@@ -69,8 +74,6 @@ init python:
         global player_name, player_class, player_age, player_hp, enemy_hp
         player_name = ""
         player_class = ""
-        player_hp = 100
-        enemy_hp = 50
         save_game()
 
 # Alle Bilder:
@@ -226,15 +229,26 @@ image Guard sad:
     zoom 2.2
     xzoom -1.0
 
-#Other Character:
+#Andere Charakter/Objekte:
 image Ki Kringle:
     "Ki Kringle.png"
     zoom 0.9
     xpos 0.6 
     ypos 1.7
 
+image Severus:
+    "Seelenbutler.png"
+    zoom 0.9
+
+image Rat:
+    "rat.png"
+    xzoom -1.0
+
 image Baseball:
     "baseball.png"
+
+image Microwave:
+    "microwave.png"
 
 # </Alle Bilder Ende>
 
@@ -882,7 +896,7 @@ label death:
     pause
 
     return
-# ending
+# Ending
 
 label dontFreezeToDeath:
     show Lux closed_eyes
@@ -1286,7 +1300,7 @@ label innocentBiteKill:
     l "That's it for you, Kris Kringle."
     scene black
     l "Kill him this instantly."
-
+    # BITE the bullet! gone too far.-END
     pause
     return
 #fast fertig ending
@@ -1361,7 +1375,7 @@ label innocentApologize:
     scene black with fade
     pause
 
-    #ending -> you actually were not harmed! Let's go Bro! 
+    #ending -> You actually were not harmed! Let's go Bro! 
     return
 #fast fertig ending
 
@@ -1423,47 +1437,47 @@ label insult:
         "No. HA! (Let him be.)":
             jump letbe
 
-#Versuch von Funktion bezüglich Animation von Schlägen:
-"""
-label KrisKringlebeatUp(timeT=0.7):
-        $ renpy.log("KrisKringlebeatUp called with timeT: {}".format(timeT))
-        show Kris Kringle angry:
-            ease 0.1 xpos 0.03 ypos 0.35
-            pause 0.07
-            ease timeT xpos 0.09 ypos 0.32
-        return
-call KrisKringlebeatUp()
-"""
-
 label reallyRude:
 
+    show Lux angry
+    pause 2
+
+    show Kris Kringle annoyed
     k "What the...?"
 
     show Lux squint_grin
-
     l "..."
+
+    show Microwave:
+        zoom 0.55
+        ypos 0.31
+        xpos 0.44
+    with dissolve
 
     l "Sometimes... I bring out this baby..."
 
+    show Lux closed_eyes
+
     l "For the... difficult cases~"
 
+    show Kris Kringle shocked
+
     "That doesn't look too good!"
-
-    k "H-Hey no hard feelings, right!?"
-
+    show Kris Kringle tense
+    k "Hey no hard feelings, right!?"
+    show Kris Kringle angry
     "I think I might have overdone it!"
-
+    show Lux angry
     l "You don't know what's good for you, do you?!"
-
     scene black
     l "Let me stuff this microwave down your filthy throat."
     "Oh oh."
 
-    # microwave ending
+    # Microwave ending
     pause
 
-    jump unconcious
-#unvollständig (Dialog fertig) ending microwave
+    return
+#fast fertig ending
 
 label hittingSequence:
     show Lux squint_grin behind Kris:
@@ -1623,6 +1637,7 @@ label letbe:
 
     menu:
         "Your life seems pretty miserable for a peasant. (Start insulting again)":
+            hide Baseball with dissolve
             jump reallyRude
 
         "(Grin at him. Seductively?)":
@@ -1669,7 +1684,7 @@ label grinSeductively:
     pause
 
     return
-#fertig! Ending
+#Ending
 label giveIn:
 
     $ timeT = 0.7
@@ -2000,7 +2015,6 @@ label sadEnding:
     
     return
 # fast fertig ending
-#ending screen fehlt
 
 label unconcious:
     pause 4
@@ -2103,43 +2117,415 @@ label unconcious:
     show Kris Kringle
     "Is that-?"
     r "*RAT NOISES*"
+    window hide
     show Kris Kringle shocked:
         ease 2.0 xpos 0.0 ypos 0.0
-    #show Rat:
-
+    show Rat:
+        xpos 0.6
+        ypos 1.0
+        ease 2 xpos 0.6 ypos 0.51
+    pause 3
+    window show
     "What is this RÄT doing here?!"
+    show Rat:
+        ease 0.2 xpos 0.6 ypos 0.45
+        ease 0.1 xpos 0.6 ypos 0.5
+    r "*MORE RAT NOISES*"
     show Kris Kringle thinking
     "Natural Habitat, I guess."
-
+    show Kris Kringle
     menu:
+        "What should I do with this RÄT?"
 
-        "As soon as he comes closer, I'll..."
+        "(Pet the good lil' guy!)":
+            jump PetRat1
 
-        "bite him in his ankle.":
-            jump biteankle
+        "(ATTACK!!!)":
+            show Kris Kringle angry
+            "I'll take it down!"
+            call Fight 
 
-        "fall to the ground and pretend like I'm dying (Big Brain Move!).":
-            jump fallground    
+        "(Ignore it.)":
+            jump IgnoreRat
     #Kampf mit der Ratte
+    return
 
+
+#--------------------------------------------------------------
+#Kampf!
+
+label Fight:
+    show Rat:
+        ease 0.2 xpos 0.6 ypos 0.45
+        ease 0.1 xpos 0.6 ypos 0.5    
+    "The RÄT looks nervous, but determined."
+    show Kris Kringle angry
+    "I won't hold back!"
+    $ enemy_hp = 50  # Reset enemy & player HP vor Fight
+    $ player_hp = 100
+    
+    while player_hp > 0 and enemy_hp > 0:
+        show Kris Kringle annoyed
+        # Spieler wählt Aktion
+        menu:
+            "What should I do?"
+            "(Punch)":
+                call FightPlayerAttackPunch
+            "(Kick)":
+                call FightPlayerAttackKick
+            "(Do nothing)":
+                call FightNothing
+            "(Spare)":
+                call FightSpare1
+
+        # Falls nach der Aktion RÄT noch lebt, greift RÄT an
+        if enemy_hp > 0:
+            call FightEnemyTurn
     
     return
-#unvollständig 
+
+# Spieler greift an (Punch)
+label FightPlayerAttackPunch:
+    show Kris Kringle angry:
+        ease 0.2 xpos 0.2 ypos 0.0
+        pause 0.2
+        ease 0.6 xpos 0.0 ypos 0.0
+    $ player_roll = random.randint(1, 20)
+    if player_roll > 10:  # Erfolgschance basierend auf Wurf
+        $ enemy_hp -= 10
+        if enemy_hp < 0:
+            $ enemy_hp = 0
+        show Kris Kringle grin
+        "I threw a solid punch. Take that RÄT! (Monster HP: [enemy_hp])"
+    else:
+        show Rat:
+            ease 0.3 xpos 0.68 ypos 0.5
+            pause 0.2
+            ease 0.7 xpos 0.6 ypos 0.5
+        "I missed! The RÄT dodged my attack with ease..."
+    
+    # Nach Spielerangriff kommt RÄT dran, außer RÄT ist schon tot
+    if enemy_hp <= 0:
+        "The RÄT is down! I won!"
+        jump FightEnd
+    return
+
+# Spieler greift an (Kick)
+label FightPlayerAttackKick:
+    show Kris Kringle angry:
+        ease 0.2 xpos 0.2 ypos 0.0
+        pause 0.2
+        ease 0.6 xpos 0.0 ypos 0.0
+    $ player_roll = random.randint(1, 20)
+    if player_roll > 12:  # Kicks haben niedrigere Trefferwahrscheinlichkeit, dafür mehr Schaden
+        $ enemy_hp -= 14
+        if enemy_hp < 0:
+            $ enemy_hp = 0
+        show Kris Kringle grin
+        "I landed a powerful kick! HAHA L! (Monster HP: [enemy_hp])"
+    else:
+        show Rat:
+            ease 0.3 xpos 0.68 ypos 0.5
+            pause 0.2
+            ease 0.7 xpos 0.6 ypos 0.5
+        "I missed! The RÄT dodged my attack with ease..."
+    
+    if enemy_hp <= 0:
+        "The RÄT is down! I won!"
+        jump FightEnd
+    return
+
+# Spieler macht nichts
+label FightNothing:
+    show Kris Kringle
+    "Actually. I don't want to do anything."
+    show Kris Kringle smile
+    "Yep!"
+    "Started this fight for absolutely nothing. Great."
+    show Kris Kringle angry
+    "Thanks, inner conflict."
+    return
+
+# Die RÄT greift an
+label FightEnemyTurn:
+    $ enemy_hit_roll = random.randint(1, 20)
+    if enemy_hit_roll > 16: # Relativ unwahrscheinlich, dass RÄT nichts tut
+        "The RÄT watches me cautiously, waiting for my next move."
+    else:
+        show Rat:
+            ease 0.4 xpos 0.4 ypos 0.5
+            pause 0.2
+            ease 0.7 xpos 0.6 ypos 0.5
+        $ enemy_roll = random.randint(1, 20)
+        if enemy_roll > 8:  # Die RÄT hat dafür hier höhere Wahrscheinlichkeit zu treffen
+            $ player_hp -= 10
+            if player_hp < 0:
+                $ player_hp = 0
+            show Kris Kringle angry
+            "The RÄT leaps forward and scratches me! (Your HP: [player_hp])"
+        else:
+            show Kris Kringle angry:
+                ease 0.3 xpos -0.1 ypos 0.0
+                pause 0.2
+                ease 0.8 xpos 0.0 ypos 0.0
+            
+            "The RÄT lunges at me but misses!"
+    
+    # Überprüfung, ob der Spieler noch lebt
+    if player_hp <= 0:
+        scene black with fade
+        "How..."
+        "Could I lose to a RÄT...?"
+        # Ending "HOW DID YOU DIE TO A RÄT"-END
+        return
+    return
+# Fast fertig Ending
+
+# Spieler versucht, die RÄT zu verschonen
+label FightSpare1:
+    show Kris Kringle thinking
+    "Maybe... there's no need to finish this."
+    show Kris Kringle tense
+    "I should lower my fists."
+    show Kris Kringle smile
+    "The RÄT tilting its head, confused but hopeful? Kinda cute how it does that."
+    
+    menu:
+        "Am I sure I want to spare the RÄT?"
+        
+        "(Yes, I should spare it.)":
+            show Kris Kringle smile
+            "I can't do this. You deserve better, little one."
+            show Kris Kringle sad
+            "The RÄT's eyes sparkle with gratitude..."
+            "I'm so glad..."
+            show Kris Kringle grin
+            "Bye little fella."
+            show Kris Kringle smile
+            "Run off into the distance! Free!"
+            jump unconciousEnd
+
+        "(No, I need to finish the fight!)":
+            show Kris Kringle angry
+            "No mercy! I'm ending this!"
+            jump Fight
+
+# Kampfende, wenn die RÄT besiegt wurde
+label FightEnd:
+    hide Rat with dissolve
+    show Kris Kringle thinking
+    "I defeated the RÄT."
+    show Kris Kringle tense
+    "I killed the lonely, hope seeking, soon-to-become-hero, always-dreaming-about-becoming-a-star-in-the-popular-TV-show-the-Ratchelor, pretty damn chill RÄT."
+    "Congrats to me."
+    show Kris Kringle sad
+    "I won. But at what cost...?"
+    "It wasn't just a RÄT. It had hopes. Dreams."
+    "I feel its dreams slip away. Slowly."
+    show Kris Kringle angry
+    "I'm an absolute monster."
+    "Shame on me."
+    "Shame."
+    show Kris Kringle closed_mouth
+    "I hope it ends in RÄT heaven."
+    show Kris Kringle smile
+    "Would appreciate that as well."
+    jump unconciousEnd
+
+#--------------------------------------------------------------
+
+
+label IgnoreRat:
+    show Kris Kringle annoyed
+    "Ugh. I'm not interested."
+    window hide
+    pause 2
+    hide Rat with dissolve
+    window show
+    show Kris Kringle closed_mouth
+    "Well. There it goes."
+    show Kris Kringle thinking
+    "At least it can get out of here..."
+    jump unconciousEnd
+
+label PetRat1:
+    "Not everything should be solved with violence."
+    show Kris Kringle smile
+    k "You're so cute!"
+    show Kris Kringle grin:
+        ease 3 xpos 0.2 ypos 0.1
+
+    k "Now who's a good little RÄT!"
+    k "Yes! You are!"
+    show Rat:
+        ease 0.05 xpos 0.6 ypos 0.45
+        pause 0.05
+        ease 0.1 xpos 0.6 ypos 0.5
+    pause 0.1
+    show Kris Kringle smile
+    "It seems to enjoy this..."
+    show Kris Kringle 
+    k "Don't stare at me with those cute watery eyes. I'm weak."
+    show Kris Kringle smile
+    k "Now off you go!"
+    k "Be free!"
+    show Kris Kringle tense
+    k "Not like me..."
+    show Rat:
+        ease 0.05 xpos 0.6 ypos 0.45
+        pause 0.05
+        ease 0.1 xpos 0.6 ypos 0.5
+    pause 0.1
+    hide Rat with dissolve
+    show Kris Kringle smile
+    "Chase your dreams."
+    "Bye bye, little one..."
+    show Kris Kringle:
+        ease 4 xpos 0.0 ypos 0.0
+    pause 5
+    jump unconciousEnd
 
 label unconciousEnd:
+    show Kris Kringle tense
+    "Hopefully I can get out of here soon."
+    show Kris Kringle angry
+    "I just have to!"
+
     if persistent.ending_1 and persistent.ending_2 and persistent.ending_3 and persistent.ending_4:
         jump special_ending
     #special event mit seelenbutler beim playthrough von allen kapiteln
 
-    # :D ending
+    scene black with fade
+    #end "Congrats you ended up in the cell! Alive!" , "Top 10 Tipps to not die in prison by Kris Kringle"
     pause
-#unvollständig ending "Congrats you ended up in the cell! Alive!" , "Top 10 Tipps to not die in prison by Kris Kringle"
+    return
+# fast fertig ending 
 
 label special_ending:
-    #Seelenbutler kommt rein
+    show Kris Kringle shocked
+    "...!"
+    show Kris Kringle angry
+    "Voices are coming closer!"
+    l "If you are truly able to do it, then consider it a deal."
+    show Kris Kringle annoyed
+    "There's Lux!"
+    show Kris Kringle thinking
+    "...And?"
+    show Kris Kringle
+    "Another voice...?"
+    l "I don't need the extra money you're paying, but I'll gladly take your lavish offer."
+    l "He's all yours."
+    show Kris Kringle annoyed
+    l "Do your worst."
+    show Kris Kringle angry
+    "From what I'm hearing that doesn't sound too good."
+    show Kris Kringle annoyed
+    "...!"
+    "Someone's coming!"
+    show Severus:
+        xpos 0.52 ypos -0.05
+    with dissolve
+    s2 "Ah~"
+    s2 "Just as Lux said. Well and every limb attached. Wonderful."
+    show Kris Kringle tense
+    "Who is this...?!"
+    s2 "It's a pleasure to finally be meeting you, Kris Kringle~!"
+    s2 "I've heard quite a lot about you and your... friends."
+    show Kris Kringle
+    "No wait."
+    show Kris Kringle shocked
+    "I know this guy!"
+    show Kris Kringle angry
+    "This is Serverus! One of the elite members of the Körperschaft!"
+    show Kris Kringle annoyed
+    "What is he doing here?!"
+
+    s "You must die to know why I am here today, right?"
+    s "Let me say this."
+    show Kris Kringle
+    s "You are the perfect candidate to work from here for us."
+    s "The Körperschaft will be pleased to have you onboard."
+    show Kris Kringle annoyed
+    k "What if I refuse?"
+    s "Refuse?"
+    s "Their is no room for you to refuse. Literally."
+    s "I have here, my dear sir Kringle..."
+    s "A full list of your gang-members and their designated addresses."
+    show Kris Kringle tense
+    s "What a shame that the Körperschaft now owns every single one of them. Including your sisters~!"
+    s "Here are copied papers if you want to see for yourself."
+    show Kris Kringle angry
+    k "WHAT?!"
+    k "THAT CAN'T BE! I will not let you!"
+    s "You think Mr. Luchsenstein was prepared?"
+    show Kris Kringle annoyed
+    s "The work of an amateur."
+    s "You have no choice, Kris Kringle."
+    s "You either help us or we will ensure to destroy everything you have left."
+    s "This is a warning. Do not test me."
+    show Kris Kringle angry
+    k "Grrrrrr..."
+    "This is absolutely useless."
+    show Kris Kringle annoyed
+    "I've been dragged into a corner without even getting the chance to fight!"
+    s "Now. Will you comply to everything the Körperschaft tells you to do?"
+
+    menu:
+        "Yes.":
+            jump special_endingYes
+        "No.":
+            jump special_ending2
+
+
+label special_ending2:
+    s "Oh no no no no no~!"
+    s "Let's not do that."
+    s "Just let me get rid of that annoying choice you love so much and change it to something much more lovely."
+    s "After all."
+    show Kris Kringle angry
+    s "You're not in charge here, Kris Kringle."
+    window hide
+    pause 5
+    window show
+    s "Now be good and continue."
+    s "I will ask one more time."
+    show Kris Kringle tense
+    s "Will you comply to everything the Körperschaft tells you to do?"
+
+
+    menu:
+        "Yes.":
+            jump special_endingYes
+        "Yes.":
+            jump special_endingYes
+
+
+label special_endingYes:
+    show Kris Kringle shocked
+    s "Oh what a great CHOICE you made!"
+    s "I‘m happy to give you just the little paperwork to forever bound your body and will to our glorious cause!"
+    show Kris Kringle tense
+    s "Sign right here!"
+    s "…"
+    s "What is it now?"
+    s "You want to progress, right?"
+    show Kris Kringle sad
+    s "Who cares if Kris Kringle suffers a fate much worse than all the other endings you played out so far? All the wicked choices you made don‘t matter after all, right?"
+    s "You shouldn’t care."
+    s "I don’t care."
+    show Kris Kringle very sad
+    s "It‘s your fault where Kris Kringle will end up. You can end it anytime. So why do you keep him here?"
+    s "I wouldn’t know. But I do know, that I will benefit from your wrongdoings."
+    s "Even if it‘s just for a little bit."
+    s "And everything will return to normal. No matter how often you reset, I will never leave."
+    s "Enjoy your precious end, [player_name]."
+
+    scene black with fade
+
+    pause
 
     return
-#unvollständig ending ":D"
+#fast fertig ending ":D"
 
 
 
