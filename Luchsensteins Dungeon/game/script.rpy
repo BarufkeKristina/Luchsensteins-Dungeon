@@ -1,7 +1,7 @@
 ﻿# ---------------------------------
 # Willkommen zum Renpy Projekt "Luchsensteins Dungeon"!
 # ---------------------------------
-# Von Lea Kriegler & Kristina Barufke
+# Von Lea Kriegler 2371179 & Kristina Barufke 2380513
 
 # Hier gibt es nur Notizen für den Code speziell, 
 # aber in dem beigefügten PDF-Dokument gibt es viele weitere Infos zu dem Projekt allgemein :D
@@ -339,10 +339,7 @@ transform move_left_to_right_short:
     linear 0.2 xalign 2.5  
 # </Tests mit Transform>
 
-
 # ----------------------------------------------------------------------------
-
-
 
 # Hier beginnt das Spiel
 label start:
@@ -2387,12 +2384,13 @@ label FightSpare1:
             "Bye little fella."
             show Kris Kringle smile
             "Run off into the distance! Free!"
+            hide Rat
             jump unconciousEnd
 
         "(No, I need to finish the fight!)":
             show Kris Kringle angry
             "No mercy! I'm ending this!"
-            jump Fight
+            call Fight
 
 # Kampfende, wenn die RÄT besiegt wurde
 label FightEnd:
@@ -2419,7 +2417,6 @@ label FightEnd:
     jump unconciousEnd
 
 #--------------------------------------------------------------
-
 
 label IgnoreRat:
     show Kris Kringle annoyed
@@ -2553,7 +2550,6 @@ label PetRatDied:
     window show
     jump unconciousEnd
 
-
 label PetLetGo:
     show Kris Kringle smile
     k "Now off you go!"
@@ -2574,6 +2570,7 @@ label PetLetGo:
     pause 5
     jump unconciousEnd
 
+
 label unconciousEnd:
     show Kris Kringle tense
     "Hopefully I can get out of here soon."
@@ -2590,7 +2587,9 @@ label unconciousEnd:
     scene black with fade
     show ending topTipps with fade
     pause
-    return
+    window show
+    $ renpy.full_restart()
+    #return funktioniert hier nicht wegen call fight
 #Ending 8
 
 label special_ending:
@@ -2733,10 +2732,9 @@ label special_endingYes:
     pause 3.0
     show ending smile with fade
     pause
-    return
+    $ renpy.full_restart()
+    # return funktioniert hier nicht wegen call fight?
 #Ending 10 ":D"
-
-
 
 # --------------------------------------------------------------
 
@@ -3048,6 +3046,6 @@ label nothing11:
     show ending nothing with fade
 
     pause
- 
+    
     return
 #Ending 9
