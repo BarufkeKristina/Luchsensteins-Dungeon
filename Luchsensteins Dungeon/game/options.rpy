@@ -14,7 +14,7 @@
 ##
 ## Das _(), das die Zeichenkette umgibt, kennzeichnet sie als übersetzbar.
 
-define config.name = _("Experiment Test Renpy")
+define config.name = _("Luchsensteins Dungeon")
 
 
 ## Bestimmt, ob der oben angegebene Titel auf dem Hauptmenübildschirm angezeigt
@@ -127,7 +127,7 @@ define config.window_hide_transition = Dissolve(.2)
 ## während jede andere Zahl die Anzahl der zu tippenden Zeichen pro Sekunde
 ## angibt.
 
-default preferences.text_cps = 0
+default preferences.text_cps = 35
 
 
 ## Die Standardverzögerung für die automatische Weiterleitung. Größere Zahlen

@@ -1,35 +1,43 @@
 ﻿# ---------------------------------
 # Willkommen zum Renpy Projekt "Luchsensteins Dungeon"!
 # ---------------------------------
+# Von Lea Kriegler & Kristina Barufke
 
 # Hier gibt es nur Notizen für den Code speziell, 
 # aber in dem beigefügten PDF-Dokument gibt es viele weitere Infos zu dem Projekt allgemein :D
 # Vorweg noch: Die Benutzung von Einrückungen allgemein, doch vor allem bei den Labels 
 # ist sehr wichtig, um die Übersicht beim Skript zu behalten.
 
-# Notizen für mich: 
+# Notizen für uns: 
 # - Code markieren, f1 und dann: Create Manual Folding Range from Selection 
-# -> richtig gut um code zusammenzufassen
+# -> richtig gut um code zusammenzufassen -> wäre schön auch dauerhaft und nicht nur temporär
 
 
 define config.developer = True
+
+# Das ist eine Variable, welche True ist, wenn die VN zu einem Buch verglichen wird. False, wenn nicht.
+default book = False
 
 # Standardangaben (Muss nicht gespeichert werden)
 default player_hp = 100
 default enemy_hp = 50
 default timeT = 0.7
+default biteCounter = 0
 
 # Standardangaben (Müssen gespeichert werden)
 default player_name = ""
 default player_class = ""
 
-# Endings (Müssen gespeichert werden)
+# Endings (Müssen gespeichert werden/ Ausprobieren von "persistent.")
 default persistent.ending_1 = False
 default persistent.ending_2 = False
 default persistent.ending_3 = False
 default persistent.ending_4 = False
-# Müssen später noch gespeichert werden
-
+default persistent.ending_5 = False
+default persistent.ending_6 = False
+default persistent.ending_7 = False
+default persistent.ending_8 = False
+default persistent.ending_9 = False
 
 # Deklarieren der Charaktere
 define l = Character(_("Lux Van Luchsenstein"), color="#cb7315")
@@ -40,7 +48,7 @@ define g1 = Character(_("Guard [player_name]"), color="#7e7e8b")
 define q = Character(_("???"), color="#cb7315")
 define r = Character(_("RÄT"), color="#cb2115")
 define s2 = Character(_("???"), color="#9c0a00")
-define s = Character(_("Serverus"), color="#9c0a00")
+define s = Character(_("Severus"), color="#9c0a00")
 
 
 # Ganzes Statement für Python-Code
@@ -66,15 +74,31 @@ init python:
                 game_state = json.load(f)
                 player_name = game_state["player_name"]
                 player_class = game_state["player_class"]
+        # Wenn nichts vorhanden ist, wird nichts geladen
         except FileNotFoundError:
             pass
 
+    def reset_persistent_endings():
+        persistent.ending_1 = False
+        persistent.ending_2 = False
+        persistent.ending_3 = False
+        persistent.ending_4 = False
+        persistent.ending_5 = False
+        persistent.ending_6 = False
+        persistent.ending_7 = False
+        persistent.ending_8 = False
+        persistent.ending_9 = False
+
+        # Speichern von persistent.
+        renpy.save_persistent()
+
     # Funktion um den Game State zu reseten (eher zum testen)
     def reset_game():
-        global player_name, player_class, player_age, player_hp, enemy_hp
+        global player_name, player_class
         player_name = ""
         player_class = ""
         save_game()
+        reset_persistent_endings()
 
 # Alle Bilder:
 # Anmerkung: Ich würde das gerne dauerhaft, auch nach Schließen des Skripts) als Einrückung festlegen, 
@@ -131,6 +155,39 @@ image ending death:
 image ending nothing:
     "ending nothing.png"
     zoom 1.2
+
+image ending nothing:
+    "ending nothing.png"
+    zoom 1.2
+
+image ending biteTheBullet:
+    "ending biteTheBullet.png"
+    zoom 1.2
+
+image ending dieRat:
+    "ending dieRat.png"
+    zoom 1.2
+
+image ending microwave:
+    "ending microwave.png"
+    zoom 1.2
+
+image ending notHarmed:
+    "ending notHarmed.png"
+    zoom 1.2
+
+image ending sadPunchingBag:
+    "ending sadPunchingBag.png"
+    zoom 1.2
+
+image ending smile:
+    "ending smile.png"
+    zoom 1.2
+
+image ending topTipps:
+    "ending topTipps.png"
+    zoom 1.2
+
 
 
 # Charaktere
@@ -229,16 +286,35 @@ image Guard sad:
     zoom 2.2
     xzoom -1.0
 
+#Severus:
+
+image Severus:
+    "Seelenbutler.png"
+    zoom 0.9
+
+image Severus annoyed:
+    "Seelenbutler annoyed.png"
+    zoom 0.9
+
+image Severus left:
+    "Seelenbutler links.png"
+    zoom 0.9
+
+image Severus left_annoyed:
+    "Seelenbutler links_annoyed.png"
+    zoom 0.9
+
+image Severus dark:
+    "Seelenbutler dark.png"
+    zoom 0.9
+
+
 #Andere Charakter/Objekte:
 image Ki Kringle:
     "Ki Kringle.png"
     zoom 0.9
     xpos 0.6 
     ypos 1.7
-
-image Severus:
-    "Seelenbutler.png"
-    zoom 0.9
 
 image Rat:
     "rat.png"
@@ -266,12 +342,11 @@ transform move_left_to_right_short:
 
 # ----------------------------------------------------------------------------
 
-# Das ist eine Variable, welche True ist, wenn die VN zu einem Buch verglichen wird. False, wenn nicht.
-default book = False
+
 
 # Hier beginnt das Spiel
 label start:
-    # New Game ist nur hier für Testzwecke und werde ich erst ganz am Ende ausklammern, wenn das 
+    # New Game ist nur hier für Testzwecke und wird erst ganz am Ende ausgeklammert, wenn das 
     # Projekt veröffentlichweise komplett fertig ist (mit anderen GUI und Hintergründen).
 
     # Es sollte immer Spiel Laden ausgewählt werden
@@ -319,10 +394,7 @@ label main_game:
     jump start_gamescene
 
 label start_gamescene:
-    $ biteCounter = 0
-    # biteCounter muss hier initialisiert werden, weil es außerhalb von den labeln nicht wahrgenommen wird.
-    # Könnte vielleicht auch mit default funktionieren? -> lasse jetzt diese Möglichkeit stehen
-
+    # Hier beginnt das Spiel, wenn man Spiel laden drückt.
     # Test mit Musik:
     # play music "Dynamite Dash - Donkey Kong Country Tropical Freeze [OST].mp3"
 
@@ -330,7 +402,7 @@ label start_gamescene:
     scene Eiswuste
     with fade
     "It's been quite a while since we left the city."
-    "Where the hell are we going?" 
+    "Where the hell are we going?"
     
     # Erste Anzeige von Charakter Kris Kringle mit Koordinaten und Animationsbewegung
     # Die meisten Animationen sind sehr konkret und deshalb ist sie meistens gleich dabei
@@ -344,6 +416,7 @@ label start_gamescene:
     # Deswegen ist die Bennenung auch etwas untaktisch. Eigentlich wird in Renpy der Name des Charakters 
     # genommen und dann dahinter die Kennzeichnung der Expression. Beide getrennt durch ein Leerzeichen.
     # Bei Kris Kringle aber nicht der Fall... Später bei Lux und den Guard passt es aber wieder.
+    # Bennenungsfehler und Schwierigkeiten werden sich aber noch öfter zeigen.
     show Kris Kringle closed_mouth
 
     "Luckily the Aliens aren't bothering us."
@@ -458,8 +531,7 @@ label start_gamescene:
 
         "fall to the ground and pretend like I'm dying (Big Brain Move!).":
             jump fallground
-    
-    
+     
 label biteankle:
     $ biteCounter += 1
     hide Kris Kringle
@@ -837,6 +909,7 @@ label breakFree:
     return
 
 label death:
+    # Hier wird das erste Ending erreicht und deswegen auf True gesetzt.
     $ persistent.ending_1 = True
 
     show Lux
@@ -896,7 +969,7 @@ label death:
     pause
 
     return
-# Ending
+# Ending 1
 
 label dontFreezeToDeath:
     show Lux closed_eyes
@@ -1295,15 +1368,18 @@ label innocentBiteHarder:
     jump innocentBiteLetGo 
 
 label innocentBiteKill:
+    $ persistent.ending_2 = True
     l "You've reached your limit."
     show Kris Kringle angry
     l "That's it for you, Kris Kringle."
     scene black
     l "Kill him this instantly."
-    # BITE the bullet! gone too far.-END
+    pause 3.0
+    scene black with fade
+    show ending biteTheBullet with fade
     pause
     return
-#fast fertig ending
+#Ending 2
 
 label innocentBiteLetGo:
     show Lux annoyed
@@ -1346,6 +1422,7 @@ label innocentApologize:
         l "Go and have fun in your own littered sea of lies."
         jump innocentBiteLetGo
 
+    $ persistent.ending_3 = True
     show Lux annoyed
     l "You're serious?"
     show Kris Kringle
@@ -1372,12 +1449,12 @@ label innocentApologize:
     show Lux
     l "Ensure he makes it to his cell safe and sound."
 
+    pause 3.0
     scene black with fade
+    show ending notHarmed with fade
     pause
-
-    #ending -> You actually were not harmed! Let's go Bro! 
     return
-#fast fertig ending
+#Ending 3
 
 label insult: 
 
@@ -1438,6 +1515,7 @@ label insult:
             jump letbe
 
 label reallyRude:
+    $ persistent.ending_4 = True
 
     show Lux angry
     pause 2
@@ -1473,11 +1551,12 @@ label reallyRude:
     l "Let me stuff this microwave down your filthy throat."
     "Oh oh."
 
-    # Microwave ending
+    pause 3.0
+    scene black with fade
+    show ending microwave with fade
     pause
-
     return
-#fast fertig ending
+#Ending 4
 
 label hittingSequence:
     show Lux squint_grin behind Kris:
@@ -1562,7 +1641,7 @@ label letbe:
     "Is he really going to hit me with that?!"
 
     # Über der hittingSequence, wenn nötig wird timeT ersetzt wegen lustigen nicht-möglichen Zeug von ATL und Renpy
-    # Habs als nicht-globale Variable probiert :,)
+    # Habens als nicht-globale Variable probiert :,)
     # Besser auf jeden Fall als das komplette Segment zu copy-pasten im Code
     $ timeT = 0.7
     call hittingSequence
@@ -1647,6 +1726,7 @@ label letbe:
             jump giveIn
 
 label grinSeductively:
+    $ persistent.ending_5 = True
 
     scene Krux with fade:
         zoom 1.2
@@ -1684,7 +1764,7 @@ label grinSeductively:
     pause
 
     return
-#Ending
+#Ending 5
 label giveIn:
 
     $ timeT = 0.7
@@ -1910,6 +1990,7 @@ label begMercy:
     jump unconcious
 
 label sadEnding:
+    $ persistent.ending_6 = True
     show Kris Kringle thinking
     "I-I... I can't..."
     show Kris Kringle tense
@@ -1929,7 +2010,7 @@ label sadEnding:
     "Why do I feel so sad out of the sudden..."
 
     window hide
-    # Kris Kringles Perspektive Nox wird blurry und hintergrund auch
+    # Kringle & Lux wird blurry und Hintergrund auch
     show Cell:
         ease 5 blur 15
     show Kris Kringle sad:
@@ -1941,7 +2022,7 @@ label sadEnding:
     show Guard happy:
         ease 5 blur 15
     pause 2.0
-    #hier blur einfügen
+    
     "Everything starts to get blurry..."
     
 
@@ -2007,14 +2088,13 @@ label sadEnding:
     
     "I'm sorry, sister."
 
+    pause 3.0
+    window hide
     scene black with fade
-    # show ************ with fade
-    # "Kris Kringle was indeed a sad punchbag-END" -> yup he died lmao... what did you expect- like for real bro
-
+    show ending sadPunchingBag with fade
     pause
-    
     return
-# fast fertig ending
+#Ending 6
 
 label unconcious:
     pause 4
@@ -2025,15 +2105,14 @@ label unconcious:
     scene Ending_Cell
     show black behind Ending_Cell
     show Ending_Cell:
-        # Initially, the image is completely transparent and blurred
+        # Zuerst komplett transparent und blurred
         alpha 0.0
         blur 100
-        # Pause to keep the image blurred and transparent
         pause 0.5
-        # Gradually bring the opacity to 1 (fully visible) and reduce blur to 0
+        # linear sichtbar machen und blur verringern
         linear 1.0 alpha 1.0
         pause 0.9
-        linear 5.0 blur 0  # Remove blur over 1 second
+        linear 5.0 blur 0 
 
     
     pause 2
@@ -2141,15 +2220,15 @@ label unconcious:
             jump PetRat1
 
         "(ATTACK!!!)":
+            #Kampf mit der Ratte
             show Kris Kringle angry
             "I'll take it down!"
             call Fight 
 
         "(Ignore it.)":
             jump IgnoreRat
-    #Kampf mit der Ratte
+    
     return
-
 
 #--------------------------------------------------------------
 #Kampf!
@@ -2191,7 +2270,7 @@ label FightPlayerAttackPunch:
         pause 0.2
         ease 0.6 xpos 0.0 ypos 0.0
     $ player_roll = random.randint(1, 20)
-    if player_roll > 10:  # Erfolgschance basierend auf Wurf
+    if player_roll > 8:  # Erfolgschance basierend auf Wurf
         $ enemy_hp -= 10
         if enemy_hp < 0:
             $ enemy_hp = 0
@@ -2217,7 +2296,7 @@ label FightPlayerAttackKick:
         pause 0.2
         ease 0.6 xpos 0.0 ypos 0.0
     $ player_roll = random.randint(1, 20)
-    if player_roll > 12:  # Kicks haben niedrigere Trefferwahrscheinlichkeit, dafür mehr Schaden
+    if player_roll > 10:  # Kicks haben niedrigere Trefferwahrscheinlichkeit, dafür mehr Schaden
         $ enemy_hp -= 14
         if enemy_hp < 0:
             $ enemy_hp = 0
@@ -2249,7 +2328,7 @@ label FightNothing:
 # Die RÄT greift an
 label FightEnemyTurn:
     $ enemy_hit_roll = random.randint(1, 20)
-    if enemy_hit_roll > 16: # Relativ unwahrscheinlich, dass RÄT nichts tut
+    if enemy_hit_roll > 17: # Relativ unwahrscheinlich, dass RÄT nichts tut
         "The RÄT watches me cautiously, waiting for my next move."
     else:
         show Rat:
@@ -2273,13 +2352,18 @@ label FightEnemyTurn:
     
     # Überprüfung, ob der Spieler noch lebt
     if player_hp <= 0:
+        $ persistent.ending_7 = True
         scene black with fade
         "How..."
         "Could I lose to a RÄT...?"
-        # Ending "HOW DID YOU DIE TO A RÄT"-END
+        pause 3.0
+        window hide
+        scene black with fade
+        show ending dieRat with fade
+        pause
         return
     return
-# Fast fertig Ending
+#Ending 7
 
 # Spieler versucht, die RÄT zu verschonen
 label FightSpare1:
@@ -2330,6 +2414,8 @@ label FightEnd:
     "I hope it ends in RÄT heaven."
     show Kris Kringle smile
     "Would appreciate that as well."
+    show Kris Kringle thinking
+    pause 3
     jump unconciousEnd
 
 #--------------------------------------------------------------
@@ -2365,7 +2451,110 @@ label PetRat1:
     show Kris Kringle smile
     "It seems to enjoy this..."
     show Kris Kringle 
-    k "Don't stare at me with those cute watery eyes. I'm weak."
+    k "Don't stare at me with those cute puppy eyes. I'm weak."
+    menu:
+        "What should I do?"
+        "(More Pets!)":
+            jump PetRat2
+        "(Let go.)":
+            jump PetLetGo
+
+label PetRat2:
+    show Kris Kringle smile
+    show Rat:
+        ease 0.05 xpos 0.6 ypos 0.45
+        pause 0.05
+        ease 0.1 xpos 0.6 ypos 0.5
+    "Oh you little one!"
+    "You like that?"
+    menu:
+        "(More Pets!!!)":
+            jump PetRat3
+        "(Let go.)":
+            jump PetLetGo
+
+label PetRat3:
+    show Kris Kringle grin
+    show Rat:
+        ease 0.05 xpos 0.6 ypos 0.45
+        pause 0.05
+        ease 0.1 xpos 0.6 ypos 0.5
+    "Awwww this cutie patootie!"
+    "How much I love tiny RÄTS!"
+    menu:
+        "(More Pets!)":
+            jump PetRat4
+        "(Let go.)":
+            jump PetLetGo
+
+label PetRat4:
+    show Kris Kringle closed_mouth
+    "Okay I think that's enough."
+    menu:
+        "(More Pets.)":
+            jump PetRat5
+        "(Let go.)":
+            jump PetLetGo
+
+label PetRat5:
+    show Kris Kringle annoyed
+    "I-I can't stop!"
+    menu:
+        "(More Pets...)":
+            jump PetRat6
+        "(Let go.)":
+            jump PetLetGo
+
+label PetRat6:
+    show Kris Kringle tense
+    "What is this insanity?!"
+    menu:
+        "(More Pets.........)":
+            jump PetRat7
+        "(Let go.)":
+            jump PetLetGo
+
+label PetRat7:
+    show Kris Kringle angry
+    "PLEASE I NEED TO LET IT GO!"
+    menu:
+        "(More Pets..............)":
+            jump PetRat8
+        "(Let go.)":
+            jump PetLetGo
+
+label PetRat8:
+    "STOOOOOOP!!!"
+    menu:
+        "(More Pets......................)":
+            jump PetRatDied
+        "(Let go.)":
+            jump PetLetGo
+
+label PetRatDied:
+    window hide
+    show Kris Kringle shocked
+    pause 3
+    hide Rat with dissolve
+    show Kris Kringle sad
+    pause 4
+    window show
+    "I..."
+    show Kris Kringle very sad
+    "I petted it to death."
+    show Kris Kringle sad
+    "What have I done..."
+    show Kris Kringle tense
+    "I will never talk about this ever again."
+    window hide
+    show Kris Kringle:
+        ease 4 xpos 0.0 ypos 0.0
+    pause 4
+    window show
+    jump unconciousEnd
+
+
+label PetLetGo:
     show Kris Kringle smile
     k "Now off you go!"
     k "Be free!"
@@ -2391,15 +2580,18 @@ label unconciousEnd:
     show Kris Kringle angry
     "I just have to!"
 
-    if persistent.ending_1 and persistent.ending_2 and persistent.ending_3 and persistent.ending_4:
+    if persistent.ending_1 and persistent.ending_2 and persistent.ending_3 and persistent.ending_4 and persistent.ending_5 and persistent.ending_6 and persistent.ending_7 and persistent.ending_8 and persistent.ending_9:
         jump special_ending
-    #special event mit seelenbutler beim playthrough von allen kapiteln
+    # Special event mit Severus beim playthrough von allen endings
 
+    $ persistent.ending_8 = True
+    pause 3.0
+    window hide
     scene black with fade
-    #end "Congrats you ended up in the cell! Alive!" , "Top 10 Tipps to not die in prison by Kris Kringle"
+    show ending topTipps with fade
     pause
     return
-# fast fertig ending 
+#Ending 8
 
 label special_ending:
     show Kris Kringle shocked
@@ -2422,7 +2614,7 @@ label special_ending:
     show Kris Kringle annoyed
     "...!"
     "Someone's coming!"
-    show Severus:
+    show Severus left:
         xpos 0.52 ypos -0.05
     with dissolve
     s2 "Ah~"
@@ -2436,38 +2628,46 @@ label special_ending:
     show Kris Kringle shocked
     "I know this guy!"
     show Kris Kringle angry
-    "This is Serverus! One of the elite members of the Körperschaft!"
+    "This is Severus! One of the elite members of the Körperschaft!"
     show Kris Kringle annoyed
     "What is he doing here?!"
 
     s "You must die to know why I am here today, right?"
+    show Severus left_annoyed
     s "Let me say this."
     show Kris Kringle
+    show Severus left
     s "You are the perfect candidate to work from here for us."
     s "The Körperschaft will be pleased to have you onboard."
     show Kris Kringle annoyed
     k "What if I refuse?"
+    show Severus left_annoyed
     s "Refuse?"
+    show Severus left
     s "Their is no room for you to refuse. Literally."
     s "I have here, my dear sir Kringle..."
     s "A full list of your gang-members and their designated addresses."
     show Kris Kringle tense
     s "What a shame that the Körperschaft now owns every single one of them. Including your sisters~!"
-    s "Here are copied papers if you want to see for yourself."
     show Kris Kringle angry
     k "WHAT?!"
+    s "Here are copied papers if you want to see for yourself."
     k "THAT CAN'T BE! I will not let you!"
     s "You think Mr. Luchsenstein was prepared?"
     show Kris Kringle annoyed
+    show Severus left_annoyed
     s "The work of an amateur."
+    show Severus left
     s "You have no choice, Kris Kringle."
     s "You either help us or we will ensure to destroy everything you have left."
+    show Severus left_annoyed
     s "This is a warning. Do not test me."
     show Kris Kringle angry
     k "Grrrrrr..."
     "This is absolutely useless."
     show Kris Kringle annoyed
     "I've been dragged into a corner without even getting the chance to fight!"
+    show Severus left
     s "Now. Will you comply to everything the Körperschaft tells you to do?"
 
     menu:
@@ -2476,17 +2676,20 @@ label special_ending:
         "No.":
             jump special_ending2
 
-
 label special_ending2:
+    show Severus left_annoyed
     s "Oh no no no no no~!"
     s "Let's not do that."
+    show Severus left
     s "Just let me get rid of that annoying choice you love so much and change it to something much more lovely."
     s "After all."
     show Kris Kringle angry
     s "You're not in charge here, Kris Kringle."
+    show Severus annoyed
     window hide
     pause 5
     window show
+    show Severus left
     s "Now be good and continue."
     s "I will ask one more time."
     show Kris Kringle tense
@@ -2499,33 +2702,39 @@ label special_ending2:
         "Yes.":
             jump special_endingYes
 
-
 label special_endingYes:
     show Kris Kringle shocked
+    show Severus
     s "Oh what a great CHOICE you made!"
     s "I‘m happy to give you just the little paperwork to forever bound your body and will to our glorious cause!"
     show Kris Kringle tense
     s "Sign right here!"
     s "…"
+    show Severus annoyed
     s "What is it now?"
+    show Severus
     s "You want to progress, right?"
     show Kris Kringle sad
     s "Who cares if Kris Kringle suffers a fate much worse than all the other endings you played out so far? All the wicked choices you made don‘t matter after all, right?"
+    show Severus annoyed
     s "You shouldn’t care."
     s "I don’t care."
     show Kris Kringle very sad
+    show Severus
     s "It‘s your fault where Kris Kringle will end up. You can end it anytime. So why do you keep him here?"
     s "I wouldn’t know. But I do know, that I will benefit from your wrongdoings."
     s "Even if it‘s just for a little bit."
+    show Severus dark with dissolve
     s "And everything will return to normal. No matter how often you reset, I will never leave."
-    s "Enjoy your precious end, [player_name]."
+    s "Enjoy your precious THE END, [player_name]."
 
     scene black with fade
-
+    window hide
+    pause 3.0
+    show ending smile with fade
     pause
-
     return
-#fast fertig ending ":D"
+#Ending 10 ":D"
 
 
 
@@ -2553,7 +2762,7 @@ label nothing:
 
         "(Keep quiet)":
             jump nothing2
-#fertig
+
 label nothing2:
     show Kris Kringle thinking
 
@@ -2577,7 +2786,7 @@ label nothing2:
 
         "(Silence.)":
             jump nothing3
-#fertig
+
 label nothing3:
 
     show Kris Kringle annoyed
@@ -2602,7 +2811,7 @@ label nothing3:
 
         "(Nothing.)":
             jump nothing4
-#fertig
+
 label nothing4:
 
     show Kris Kringle thinking
@@ -2644,7 +2853,7 @@ label nothing4:
 
         "...":
             jump nothing5
-#fertig
+
 label nothing5:
     show Lux angry
 
@@ -2665,7 +2874,7 @@ label nothing5:
 
         "...":
             jump nothing6
-#fertig
+
 label nothing6:
     show Kris Kringle smile
     show Lux angry
@@ -2707,7 +2916,7 @@ label nothing6:
 
         "...":
             jump nothing7
-#fertig
+
 label nothing7:
 
     g "Go on! You can do it!"
@@ -2720,7 +2929,7 @@ label nothing7:
 
         "...":
             jump nothing7_1
-#fertig
+
 label nothing7_1:
     
     g "I believe in you! And as a reward you will see me do 1 or more backflips! Yeah yeah yeah!"
@@ -2739,7 +2948,7 @@ label nothing7_1:
             jump nothing8
         "...":
             jump nothing8
-#fertig
+
 label nothing8:
     show Kris Kringle closed_mouth
 
@@ -2767,7 +2976,7 @@ label nothing8:
             jump nothing9
         "...":
             jump nothing9
-#fertig
+
 label nothing9:
     g "Say Four, Five, Six, I'm gonna show you the bestest tricks!"
 
@@ -2781,7 +2990,7 @@ label nothing9:
             jump nothing10
         "...":
             jump nothing10
-#fertig
+
 label nothing10:
     g "Say Seven, Eight, Nine, it's time the words shine!"
 
@@ -2805,8 +3014,9 @@ label nothing10:
             jump nothing11
         "...":
             jump nothing11
-#fertig
+
 label nothing11:
+    $ persistent.ending_9 = True
     g "Say Ten, Eleven, Twelve-!"
 
     show Guard
@@ -2838,9 +3048,6 @@ label nothing11:
     show ending nothing with fade
 
     pause
-
-    # "If you do nothing, you're not doing anything wrong" ending.
-    # Bro did you not see all the cool dialogue options :O Backflipcounter = 0 :P
  
     return
-#fertig Ending
+#Ending 9

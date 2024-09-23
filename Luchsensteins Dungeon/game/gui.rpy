@@ -65,19 +65,19 @@ define gui.interface_text_color = '#ffffff'
 ## Schriftarten und Schriftgrößen ##############################################
 
 ## Die für den Text im Spiel verwendete Schriftart.
-define gui.text_font = "DejaVuSans.ttf"
+define gui.text_font = "fonts/KGMidnightMemories.ttf"
 
 ## Die für Zeichennamen verwendete Schriftart.
-define gui.name_text_font = "DejaVuSans.ttf"
+define gui.name_text_font = "fonts/KGMidnightMemories.ttf"
 
 ## Die Schriftart, die für den Text außerhalb des Spiels verwendet wird.
-define gui.interface_text_font = "DejaVuSans.ttf"
+define gui.interface_text_font = "fonts/KGMidnightMemories.ttf"
 
 ## Die Größe des normalen Dialogtextes.
-define gui.text_size = 33
+define gui.text_size = 45
 
 ## Die Größe der Zeichennamen.
-define gui.name_text_size = 45
+define gui.name_text_size = 55
 
 ## Die Größe des Textes in der Benutzeroberfläche des Spiels.
 define gui.interface_text_size = 33
@@ -109,14 +109,14 @@ define gui.textbox_height = 278
 
 ## Die Platzierung des Textfeldes vertikal auf dem Bildschirm. 0.0 ist der obere
 ## Rand, 0.5 ist die Mitte und 1.0 ist der untere Rand.
-define gui.textbox_yalign = 1.0
+define gui.textbox_yalign = 0.99
 
 
 ## Die Platzierung des Namens des sprechenden Charakters, relativ zum Textfeld.
 ## Dies kann eine ganze Anzahl von Pixeln von links oder oben sein, oder 0,5 bis
 ## zur Mitte.
-define gui.name_xpos = 360
-define gui.name_ypos = 0
+define gui.name_xpos = 350
+define gui.name_ypos = -4
 
 ## Die horizontale Ausrichtung des Namens des Zeichens. Dies kann 0.0 für
 ## linksbündig, 0.5 für zentriert und 1.0 für rechtsbündig sein.
@@ -143,7 +143,7 @@ define gui.dialogue_xpos = 402
 define gui.dialogue_ypos = 75
 
 ## Die maximale Breite des Dialogtextes, in Pixeln.
-define gui.dialogue_width = 1116
+define gui.dialogue_width = 1416
 
 ## Die horizontale Ausrichtung des Dialogtextes. Dies kann 0.0 für linksbündig,
 ## 0.5 für zentriert und 1.0 für rechtsbündig sein.
