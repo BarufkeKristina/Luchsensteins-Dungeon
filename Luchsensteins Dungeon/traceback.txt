@@ -1,26 +1,30 @@
 ﻿I'm sorry, but an uncaught exception occurred.
 
 While running game code:
-  File "game/script.rpy", line 320, in script
-    $ biteCounter += 1
-  File "game/script.rpy", line 320, in <module>
-    $ biteCounter += 1
-NameError: name 'biteCounter' is not defined
+  File "game/script.rpy", line 2226, in script call
+    call Fight
+  File "game/script.rpy", line 2258, in script call
+    call FightSpare1
+  File "game/script.rpy", line 2739, in script
+    jump main_menu
+ScriptError: could not find label 'main_menu'.
 
 -- Full Traceback ------------------------------------------------------------
 
 Full traceback:
-  File "game/script.rpy", line 320, in script
-    $ biteCounter += 1
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\ast.py", line 823, in execute
-    renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
-  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\python.py", line 1178, in py_exec_bytecode
-    exec(bytecode, globals, locals)
-  File "game/script.rpy", line 320, in <module>
-    $ biteCounter += 1
-NameError: name 'biteCounter' is not defined
+  File "game/script.rpy", line 2226, in script call
+    call Fight
+  File "game/script.rpy", line 2258, in script call
+    call FightSpare1
+  File "game/script.rpy", line 2739, in script
+    jump main_menu
+  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\ast.py", line 1701, in execute
+    rv = renpy.game.script.lookup(target)
+  File "C:\Users\monik\Downloads\renpy-8.2.3-sdk\renpy\script.py", line 1103, in lookup
+    raise ScriptError("could not find label '%s'." % str(original))
+ScriptError: could not find label 'main_menu'.
 
 Windows-10-10.0.19045 AMD64
 Ren'Py 8.2.3.24061702
-Experiment Test Renpy 1.0
-Fri Aug 16 18:13:57 2024
+Luchsensteins Dungeon 1.0
+Mon Sep 23 23:22:07 2024
